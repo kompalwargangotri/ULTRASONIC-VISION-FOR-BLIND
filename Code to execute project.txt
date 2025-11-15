@@ -1,0 +1,104 @@
+Code:
+
+//Pins for the Ultrasonic Sensor
+#define TRIG_PIN1 2
+#define ECHO_PIN1 3
+#define TRIG_PIN2 4
+#define ECHO_PIN2 5
+
+//Pins for the Buzzer
+#define BUZZER_PIN 6
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN1, OUTPUT);
+  pinMode(ECHO_PIN1, INPUT);
+  pinMode(TRIG_PIN2, OUTPUT);
+  pinMode(ECHO_PIN2, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void loop() {
+
+  // Distance and Duration Variables
+  long totalTimeTransmReceive_obst, totalTimeTransmReceive_depth;
+
+  // variables used to take decision for buzzer
+  long frntObjectDistance, depth;
+
+  // condition variable for buzzer
+  long buzzer = 0;
+  
+  // For first sensor distance measurement (front object distance detection)
+  digitalWrite(TRIG_PIN1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN1, LOW);
+  totalTimeTransmReceive_obst = pulseIn(ECHO_PIN1, HIGH);
+  frntObjectDistance = totalTimeTransmReceive_obst * 0.034 / 2;
+
+  // For second sensor distance measurement (depth measurement)
+  digitalWrite(TRIG_PIN2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN2, LOW);
+  totalTimeTransmReceive_depth = pulseIn(ECHO_PIN2, HIGH);
+  depth = totalTimeTransmReceive_depth * 0.034 / 2;
+
+  Serial.print("sensor 1 distance with object: ");
+  Serial.print(frntObjectDistance);
+  Serial.println(" cm");
+
+  Serial.print(" sensor 2 distance with object: ");
+  Serial.print(depth);
+  Serial.println(" cm");
+
+  if (frntObjectDistance < 50 ) {
+    buzzer += 2;
+  }
+
+  if (depth > 40) {
+    buzzer += 1;
+  }
+
+  if (buzzer == 3) {
+    // front obstracle and pothole detected
+
+    // If an object is detected by sensor, activate the buzzer
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100); // Buzzer on time
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100.0002); // Buzzer off time
+
+    // If an object is detected by sensor, activate the buzzer
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100); // Buzzer on time
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100.0002); // Buzzer off time
+
+  } else if (buzzer == 2) {
+    // font obstracle detected
+    // If an object is detected by sensor, activate the buzzer
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100); // Buzzer on time
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100.0002); // Buzzer off time
+
+  } else if (buzzer == 1) {
+    // font pothole detected
+    // For measurement of depth
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(1500); // Buzzer on time
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(500); // Buzzer off time
+  } else {
+    // no object find
+  }
+  
+    delay(500); // Each measurement gap/delay period
+
+
+}
+
